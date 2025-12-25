@@ -28,14 +28,34 @@ const quizData: QuizQuestion[] = [
     ],
     answer: "Quốc lộ 1A",
   },
+  {
+    question:
+      "Khi gặp sự cố trên cao tốc, người lái xe cần làm gì đầu tiên?",
+    options: [
+      "Xuống xe đứng giữa đường",
+      "Dừng xe ngay làn xe chạy",
+      "Bật đèn cảnh báo, đưa xe vào làn dừng khẩn cấp",
+      "Gọi điện cho người thân",
+    ],
+    answer: "Bật đèn cảnh báo, đưa xe vào làn dừng khẩn cấp",
+  },
 ];
 
 const Quiz: React.FC = () => {
   const [currentQuestion, setCurrentQuestion] = useState<number>(0);
   const [optionSelected, setSelected] = useState<string | null>(null);
+  const [score, setScore] = useState<number>(0);
+
+  const question = quizData[currentQuestion];
 
   const handleSelectOption = (option: string) => {
+    if (optionSelected) return; // khóa chọn
+
     setSelected(option);
+
+    if (option === question.answer) {
+      setScore((prev) => prev + 1);
+    }
   };
 
   const handleNext = () => {
@@ -52,8 +72,6 @@ const Quiz: React.FC = () => {
     }
   };
 
-  const question = quizData[currentQuestion];
-
   return (
     <>
       <h2>
@@ -62,20 +80,38 @@ const Quiz: React.FC = () => {
 
       <p className="question">{question.question}</p>
 
-      {question.options.map((option) => (
-        <button
-          key={option}
-          className={`option ${
-            optionSelected === option ? "selected" : ""
-          }`}
-          onClick={() => handleSelectOption(option)}
-        >
-          {option}
-        </button>
-      ))}
+      {question.options.map((option) => {
+        let className = "option";
+
+        if (optionSelected) {
+          if (option === question.answer) {
+            className += " correct"; 
+          } else if (option === optionSelected) {
+            className += " wrong";
+          }
+        }
+
+        return (
+          <button
+            key={option}
+            className={className}
+            onClick={() => handleSelectOption(option)}
+            disabled={!!optionSelected}
+          >
+            {option}
+          </button>
+        );
+      })}
 
       {optionSelected && (
-        <p>Câu trả lời của bạn: <b>{optionSelected}</b></p>
+        <>
+          <p>
+            Đáp án đúng: <b>{question.answer}</b>
+          </p>
+          <p>
+            {optionSelected === question.answer ? "Correct" : "Incorrect"}
+          </p>
+        </>
       )}
 
       <div className="nav-buttons">
@@ -84,11 +120,15 @@ const Quiz: React.FC = () => {
         </button>
         <button
           onClick={handleNext}
-          disabled={currentQuestion === quizData.length - 1}
+          disabled={!optionSelected || currentQuestion == quizData.length - 1}
         >
           Kế tiếp
         </button>
       </div>
+
+      <p>
+        Điểm hiện tại: <b>{score}</b>
+      </p>
     </>
   );
 };
