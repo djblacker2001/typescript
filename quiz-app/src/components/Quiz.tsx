@@ -1,10 +1,15 @@
 import React, { useState } from "react";
+import UserInfo from "./UserInfo";
+
 
 interface QuizQuestion {
   question: string;
   options: string[];
   answer: string;
 }
+
+const username: string = "nguyenvana";
+
 
 const quizData: QuizQuestion[] = [
   {
@@ -74,6 +79,7 @@ const Quiz: React.FC = () => {
 
   return (
     <>
+      <UserInfo username={username} />
       <h2>
         Câu {currentQuestion + 1}
       </h2>
