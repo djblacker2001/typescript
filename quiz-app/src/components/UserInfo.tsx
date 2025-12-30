@@ -7,7 +7,7 @@ interface UserInfoProps {
 const UserInfo: React.FC<UserInfoProps> = ({ username }) => {
     return (
         <div className="user-info">
-            Tài khoản: <b>{username}</b>
+            <p>Tài khoản: <b>{username}</b></p>
         </div>
     );
 };

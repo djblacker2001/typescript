@@ -4,14 +4,102 @@ h1 {
   text-align: center;
 }
 
-.nav {
+.user-info p {
+  text-align: right;
   margin: 10px;
   padding: 10px;
 }
 
-.nav button {
-  width: 200px;
+.nav {
+  display: block;
+  margin: 0 auto;
+  padding: 10px;
+  width: 100%;
+  height: 100%;
+}
+
+.nav #add {
+  margin: 10px;
+  background-color: lightgray;
+  padding: 10px;
+  width: 150px;
   border: none;
   cursor: pointer;
+}
 
+.nav #add:hover {
+  background-color: gray;
+}
+
+.nav select {
+  border: 1px solid black;
+  margin: 10px;
+  padding: 10px;
+  width: 150px;
+}
+
+.nav input {
+  border: 1px solid black;
+  margin:0 0 10px;
+  padding: 10px;
+  width: 300px;
+}
+
+.nav #searchPro {
+  background-color: lightgray;
+  padding: 10px;
+  border: 1px solid black;
+  cursor: pointer;
+}
+
+.nav input:hover {
+  box-shadow: gray;
+}
+
+.products {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.my-table {
+  border-collapse: collapse;   /* 🔥 QUAN TRỌNG */
+  margin: 0 auto;
+}
+
+.my-table th,
+.my-table td {
+  border: 1px solid black;
+  padding: 8px 12px;
+  text-align: center;
+}
+
+.my-table img {
+  width: 100px;
+}
+
+.my-table #edit {
+  border: none;
+  cursor: pointer;
+  padding: 10px;
+  margin: 5px;
+  background-color: rgb(0, 158, 158);
+  border-radius: 3px;
+}
+
+.my-table #edit:hover {
+  background-color: rgb(0, 117, 117);
+}
+
+.my-table #delete {
+  border: none;
+  cursor: pointer;
+  padding: 10px;
+  margin: 5px;
+  background-color: rgb(255, 45, 45);
+  border-radius: 3px;
+}
+
+.my-table #delete:hover {
+  background-color: rgb(168, 0, 0);
 }
