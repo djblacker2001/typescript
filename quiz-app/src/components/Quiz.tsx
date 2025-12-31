@@ -6,6 +6,7 @@ import {
   faMagnifyingGlass,
   faPenToSquare,
   faTrashCan,
+  faXmark,
 } from "@fortawesome/free-solid-svg-icons";
 
 interface Product {
@@ -16,7 +17,7 @@ interface Product {
   status: string;
 }
 
-const username: string = "nguyenvana";
+const username = "nguyenvana";
 
 const Quiz: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([
@@ -30,103 +31,182 @@ const Quiz: React.FC = () => {
     },
   ]);
 
-  // 👉 Thêm sản phẩm
-  const addProduct = () => {
-    const newProduct: Product = {
-      id: Date.now(),
-      name: "Sản phẩm mới",
-      image: "https://via.placeholder.com/80",
-      price: 1000,
-      status: "Đang hoạt động",
-    };
-    setProducts([...products, newProduct]);
+  const [keyword, setKeyword] = useState("");
+  const [sortType, setSortType] = useState("new");
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+
+  const [form, setForm] = useState<Product>({
+    id: 0,
+    name: "",
+    image: "",
+    price: 0,
+    status: "Đang hoạt động",
+  });
+
+  /* ================= SEARCH ================= */
+  const handleSearch = () => {
+    let result = [...products].filter((p) =>
+      p.name.toLowerCase().includes(keyword.toLowerCase())
+    );
+
+    if (sortType === "az")
+      result.sort((a, b) => a.name.localeCompare(b.name));
+    if (sortType === "za")
+      result.sort((a, b) => b.name.localeCompare(a.name));
+
+    setProducts(result);
   };
 
-  // 👉 Xóa sản phẩm
+  /* ================= SORT ================= */
+  const handleSort = (value: string) => {
+    setSortType(value);
+    let sorted = [...products];
+
+    if (value === "az") sorted.sort((a, b) => a.name.localeCompare(b.name));
+    if (value === "za") sorted.sort((a, b) => b.name.localeCompare(a.name));
+    if (value === "new") sorted.sort((a, b) => b.id - a.id);
+
+    setProducts(sorted);
+  };
+
+  /* ================= MODAL ================= */
+  const openAddModal = () => {
+    setEditingProduct(null);
+    setForm({
+      id: 0,
+      name: "",
+      image: "",
+      price: 0,
+      status: "Đang hoạt động",
+    });
+    setModalOpen(true);
+  };
+
+  const openEditModal = (p: Product) => {
+    setEditingProduct(p);
+    setForm(p);
+    setModalOpen(true);
+  };
+
+  const saveProduct = () => {
+    if (!form.name || !form.price) return alert("Nhập đủ thông tin!");
+
+    if (editingProduct) {
+      setProducts(
+        products.map((p) => (p.id === form.id ? form : p))
+      );
+    } else {
+      setProducts([
+        ...products,
+        { ...form, id: Date.now() },
+      ]);
+    }
+
+    setModalOpen(false);
+  };
+
   const deleteProduct = (id: number) => {
-    if (window.confirm("Bạn có chắc muốn xóa?")) {
+    if (confirm("Xóa sản phẩm?")) {
       setProducts(products.filter((p) => p.id !== id));
     }
-  };
-
-  // 👉 Sửa sản phẩm
-  const editProduct = (id: number) => {
-    const name = prompt("Tên sản phẩm mới?");
-    const price = prompt("Giá mới?");
-
-    if (!name || !price) return;
-
-    setProducts(
-      products.map((p) =>
-        p.id === id
-          ? { ...p, name, price: Number(price) }
-          : p
-      )
-    );
   };
 
   return (
     <>
       <UserInfo username={username} />
 
-      {/* NAV */}
+      {/* ===== NAV ===== */}
       <section className="nav">
-        <button id="add" onClick={addProduct}>
+        <button onClick={openAddModal} id="add">
           <FontAwesomeIcon icon={faPlus} /> Thêm sản phẩm
         </button>
 
-        <select>
-          <option>Mới nhất</option>
-          <option>A - Z</option>
-          <option>Z - A</option>
+        <select onChange={(e) => handleSort(e.target.value)}>
+          <option value="new">Mới nhất</option>
+          <option value="az">A - Z</option>
+          <option value="za">Z - A</option>
         </select>
 
-        <input type="text" placeholder="Nhập từ khóa" />
-        <button id="searchPro">
+        <input
+          placeholder="Nhập tên sản phẩm"
+          value={keyword}
+          onChange={(e) => setKeyword(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+        />
+
+        <button onClick={handleSearch} id="searchPro">
           <FontAwesomeIcon icon={faMagnifyingGlass} />
         </button>
       </section>
 
-      {/* TABLE */}
-      <section className="products">
-        <table className="my-table">
-          <thead>
-            <tr>
-              <th>STT</th>
-              <th>ID</th>
-              <th>Tên sản phẩm</th>
-              <th>Hình ảnh</th>
-              <th>Giá thành</th>
-              <th>Trạng Thái</th>
-              <th>Hành động</th>
+      {/* ===== TABLE ===== */}
+      <table className="my-table">
+        <thead>
+          <tr>
+            <th>STT</th>
+            <th>ID</th>
+            <th>Tên</th>
+            <th>Ảnh</th>
+            <th>Giá</th>
+            <th>Trạng thái</th>
+            <th>Hành động</th>
+          </tr>
+        </thead>
+        <tbody>
+          {products.map((p, i) => (
+            <tr key={p.id}>
+              <td>{i + 1}</td>
+              <td>{p.id}</td>
+              <td>{p.name}</td>
+              <td><img src={p.image} width={50} /></td>
+              <td>{p.price.toLocaleString()} VND</td>
+              <td>{p.status}</td>
+              <td>
+                <button onClick={() => openEditModal(p)} id="edit">
+                  <FontAwesomeIcon icon={faPenToSquare} /> edit
+                </button>
+                <button onClick={() => deleteProduct(p.id)} id="delete">
+                  <FontAwesomeIcon icon={faTrashCan} /> delete
+                </button>
+              </td>
             </tr>
-          </thead>
+          ))}
+        </tbody>
+      </table>
 
-          <tbody>
-            {products.map((p, index) => (
-              <tr key={p.id}>
-                <td>{index + 1}</td>
-                <td>{p.id}</td>
-                <td>{p.name}</td>
-                <td>
-                  <img src={p.image} width={60} />
-                </td>
-                <td>{p.price.toLocaleString()} VND</td>
-                <td>{p.status}</td>
-                <td>
-                  <button id="edit" onClick={() => editProduct(p.id)}>
-                    <FontAwesomeIcon icon={faPenToSquare} /> Sửa
-                  </button>
+      {/* ===== MODAL ===== */}
+      {modalOpen && (
+        <div className="modal">
+          <div className="modal-box">
+            <h3>{editingProduct ? "Sửa sản phẩm" : "Thêm sản phẩm"}</h3>
 
-                  <button id="delete" onClick={() => deleteProduct(p.id)}>
-                    <FontAwesomeIcon icon={faTrashCan} /> Xóa
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </section>
+            <input
+              placeholder="Tên sản phẩm"
+              value={form.name}
+              onChange={(e) => setForm({ ...form, name: e.target.value })}
+            />
+            <input
+              placeholder="Link hình ảnh"
+              value={form.image}
+              onChange={(e) => setForm({ ...form, image: e.target.value })}
+            />
+            <input
+              type="number"
+              placeholder="Giá"
+              value={form.price}
+              onChange={(e) => setForm({ ...form, price: Number(e.target.value) })}
+            />
+
+            <div className="modal-actions">
+              <button onClick={saveProduct}>Lưu</button>
+              <button onClick={() => setModalOpen(false)}>
+                <FontAwesomeIcon icon={faXmark} />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };
